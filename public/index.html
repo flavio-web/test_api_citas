@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .template-item__preview-wrap {
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        @media (min-width: 768px) {
+            .mb-md-26 {
+                margin-bottom: 26px !important;
+            }
+        }
+        .mb-16 {
+            margin-bottom: 16px !important;
+        }
+        * {
+            font-size: inherit;
+            line-height: inherit;
+            font-family: Manrope, sans-serif;
+            color: inherit;
+            letter-spacing: -.02em;
+            font-feature-settings: "salt" on, "ss01" on, "liga" off;
+        }
+
+        .template-item__preview-link {
+            display: flex;
+        }
+        .scroll-y {
+            position: relative;
+        }
+
+        .template-item__preview-link .scroll-body {
+            height: auto;
+            max-height: 75vh;
+            width: 100%;
+            overflow: hidden;
+            max-width: 500px;
+            border-radius: 20px;
+        }
+
+        .scroll-y .scroll-scrollbar {
+            width: calc(100% + 16px);
+            max-height: 100%;
+            height: 100%;
+            overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="template-item__preview-wrap mb-16 mb-md-26">
+        <div class="scroll-y template-item__preview-link active">
+            <div class="scroll-body" desktop-body="">
+                <picture>
+                    <source srcset="/photos/shares/Templates/web-1585914.webp" type="image/webp">
+                    <img class="scroll-body-item template-item__preview-image" loading="lazy" desktop-item="" width="500" height="714" src="/photos/shares/Templates/web-1585914.jpg" alt="Internal email template &quot;Team meeting&quot; for human resources industry desktop view" title="Internal email template &quot;Team meeting&quot; for human resources industry desktop view">
+                </picture>
+            </div>
+            <div class="scroll-scrollbar" scrollbar="" desktop-scrollbar="" style="height: 308.25px;">
+                <div class="scroll-trumb" desktop-trumb="" style="height: 1564px;"></div>
+            </div>
+        </div>
+        <div class="scroll-y template-item__preview-link">
+            <div class="scroll-body" mobile-body="">
+                <picture>
+                    <source srcset="/photos/shares/Templates/mob-1585914.webp" type="image/webp">
+                    <img class="scroll-body-item template-item__preview-image" loading="lazy" width="320" height="714" mobile-item="" src="/photos/shares/Templates/mob-1585914.jpg" alt="Internal email template &quot;Team meeting&quot; for human resources industry mobile view" title="Internal email template &quot;Team meeting&quot; for human resources industry mobile view">
+                </picture>
+            </div>
+            <div class="scroll-scrollbar" scrollbar="" mobile-scrollbar="" style="height: 0px;">
+                <div class="scroll-trumb" mobile-trumb="" style="height: 0px;"></div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

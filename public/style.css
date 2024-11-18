@@ -1,0 +1,55 @@
+:root {
+    --color-primary: #8B5CF6;
+    --color-primary-rgb: 0, 102, 0;
+    --color-primary-contrast: #ffffff;
+    --color-primary-contrast-rgb: 139, 92, 246;
+    --color-primary-shade: #744fcd;
+    --color-primary-tint: #623eb6;
+  
+    --color-secondary: #31317C;
+    --color-secondary-rgb: 0, 102, 0;
+    --color-secondary-contrast: #ffffff;
+    --color-secondary-contrast-rgb: 139, 92, 246;
+    --color-secondary-shade: #272762;
+    --color-secondary-tint: #202053;
+  
+}
+
+.cabecera{
+    background-color: var(--color-secondary);
+}
+
+.titulo-principal{
+    color: var(--color-primary);
+}
+
+.titulo-secundario{
+    color: var(--color-secondary);
+}
+
+.icon-calendar{
+    width: 100px;
+}
+
+.imgDoctor{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+}
+
+.text-especialidad{
+    color: var(--color-primary);
+}
+
+.borde-contactos{
+    border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+}
+
+.borde-cita{
+    border-color: var(--color-primary) !important;
+}
+
+.fecha-cita{
+    color: var(--color-secondary) !important;
+}
