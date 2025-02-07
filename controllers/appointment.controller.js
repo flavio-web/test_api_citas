@@ -5,14 +5,53 @@ const Doctor = require('../models/doctor');
 const State = require('../models/state-appointment');
 const { sendMailDefault } = require('../helpers/send-email');
 const { crearHtmlNotificacion } = require('../helpers/notification');
+const { convertImageToBase64 } = require('../helpers');
 
 const index = async( req = request, res = response ) => {
     try {
-        const appointment = await Appointment.find().sort({ date: 'asc' });//.populate('users');
+        const appointments = await Appointment.find()
+            .populate({
+                path:'patient',
+                select:'firstname lastname photo email address phone birthday'
+            })
+            .populate({
+                path:'doctor',
+                populate: {
+                    path: 'user',
+                    select:'firstname lastname photo email address phone birthday'
+                },
+            })
+            .populate({
+                path:'doctor',
+                populate: {
+                    path: 'speciality',
+                    select:'name state description'
+                }
+            })
+            .populate({
+                path: 'state',
+                select: 'name primary secondary'
+            })
+            .populate({
+                path: 'details.service',
+                select: 'name speciality state',
+                populate: {
+                    path: 'speciality',
+                    select:'name state description'
+                }
+            })
+            .sort({ date: 'asc' });
+
+        await appointments.map(async (appointment) => {
+            console.log(appointment);
+            appointment.patient.photo = convertImageToBase64(appointment.patient.photo);
+            appointment.doctor.user.photo = convertImageToBase64(appointment.doctor.user.photo);
+            return appointment;
+        });
 
         res.json({
             status: true,
-            result: appointment,
+            result: appointments,
         });
     } catch (error) {
         console.log( error );
@@ -29,24 +68,22 @@ const show = async( req = request, res = response ) => {
         const appointment = await Appointment.findById( uid )
         .populate({
             path:'patient',
-            select:'firsname lastname photo email address phone birthday'
+            //select:'firstname lastname photo email address phone birthday'
         })
         .populate({
             path:'doctor',
-            select: 'code user',
+            select: 'code state user',
             populate: {
-                path: 'user',
-                select:'firstname lastname photo email address phone birthday'
+                path: 'speciality user',
             },
-            populate: {
-                path: 'speciality',
-                select:'name state description'
-            }
         })
-        .populate('state', 'name')
+        .populate({
+            path: 'state',
+            select: 'name primary secondary'
+        })
         .populate({
             path: 'details.service',
-            select: 'name speciality state',
+            //select: 'name speciality state',
             populate: {
                 path: 'speciality',
                 select:'name state description'
@@ -59,6 +96,9 @@ const show = async( req = request, res = response ) => {
                 message: `No existe la cita médica con el identificador ${uid}.`
             });
         }
+
+        appointment.patient.photo = convertImageToBase64(appointment.patient.photo);
+        appointment.doctor.user.photo = convertImageToBase64(appointment.doctor.user.photo);
 
         res.json({
             status: true,
@@ -75,7 +115,14 @@ const show = async( req = request, res = response ) => {
 
 const store = async( req = request, res = response ) => {
     try {
-        const { date, state, patient, doctor, observation, details } = req.body;
+        const { datestart, dateend, state, patient, doctor, observation, details } = req.body;
+
+        if( Date.parse(dateend) <= Date.parse(datestart) ){
+            return res.status(401).json({
+                status: false,
+                message: 'La fecha final debe ser mayor a la fecha inicial.'
+            });
+        }
 
         //validar que el doctor se encuentra habilitado
         const dataDoctor = await Doctor.findById( doctor ).populate('user');
@@ -86,7 +133,7 @@ const store = async( req = request, res = response ) => {
             });
         }
 
-        const appointment = new Appointment({ date, state, patient, doctor, observation, details });
+        const appointment = new Appointment({ datestart, dateend, state, patient, doctor, observation, details });
         appointment.save();
 
         const user_patient = await User.findById( patient );
@@ -108,10 +155,16 @@ const store = async( req = request, res = response ) => {
 const update = async( req = request, res = response ) => {
     try {
         const { uid } = req.params;
-        const { date, state, patient, doctor, observation, details } = req.body;
-        const updatedAt = Date.now();
+        const { datestart, dateend, state, patient, doctor, observation, details } = req.body;
        
-        const appointment = await Appointment.findByIdAndUpdate( uid, { updatedAt, date, state, patient, doctor, observation, details } );
+        if( Date.parse(dateend) <= Date.parse(datestart) ){
+            return res.status(401).json({
+                status: false,
+                message: 'La fecha final debe ser mayor a la fecha inicial.'
+            });
+        }
+        
+        const appointment = await Appointment.findByIdAndUpdate( uid, { datestart, dateend, state, patient, doctor, observation, details } );
 
         const user_patient = await User.findById( patient );
 
@@ -135,7 +188,18 @@ const updateState = async( req = request, res = response ) => {
         const { state } = req.body;
         const updatedAt = Date.now();
        
-        const appointment = await Appointment.findByIdAndUpdate( uid, { updatedAt, state } ).populate('patient', ['firstname', 'lastname']).populate('state', ['name']);
+        const appointment = await Appointment.findByIdAndUpdate( uid, { updatedAt, state } )
+        .populate('patient', ['firstname', 'lastname'])
+        .populate('state', ['name'])
+        .populate({
+            path: 'doctor',
+            select: 'user',
+            populate: {
+                path: 'user',
+                select: 'firstname lastname photo email address phone birthday'
+            },
+        })
+        ;
 
         res.json({
             status: true,
@@ -151,6 +215,7 @@ const updateState = async( req = request, res = response ) => {
     }
 }
 
+/***esta funcion no hacer ***/
 const sendNotificationAppointment = async ( req = request, res = response ) => {
     try {
         const { uid } = req.params;
@@ -176,11 +241,34 @@ const sendNotificationAppointment = async ( req = request, res = response ) => {
     }
 }
 
+const destroy = async( req = request, res = response ) => {
+    try {
+
+        const { uid } = req.params;
+
+        const appointment = await Appointment.findByIdAndDelete( uid );
+
+        res.json({
+            status: true,
+            result: appointment,
+            message: `Cita médica eliminada correctamente.`
+        });
+        
+    } catch (error) {
+        console.log( error );
+        return res.status(500).json({
+            status: false,
+            message: 'Error interno en el servidor, por favor vuelva a intentarlo.'
+        });
+    }
+}
+
 module.exports = {
     index,
     show,
     store,
     update,
     updateState,
+    destroy,
     sendNotificationAppointment
 }

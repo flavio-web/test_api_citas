@@ -34,21 +34,36 @@ const DetailSchema = Schema({
             errorMessage: 'El detalle debe de tener 500 caracteres máximo',
         },
     }
+}, {
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    }
 });
 
 
 const AppointmentSchema = Schema({
-    createdAt: {
+    datestart:{
         type: Date,
         date: Date,
-        default: Date.now()
+        default: Date.now(),
+        required: true,
     },
-    updatedAt: {
-        type: Date,
-        date: Date,
-        default: Date.now()
-    },
-    date:{
+    dateend:{
         type: Date,
         date: Date,
         default: Date.now(),
@@ -81,15 +96,26 @@ const AppointmentSchema = Schema({
         require: true
     }
 }, {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    }
 });
 
-
-AppointmentSchema.methods.toJSON = function(){
-    const { __v, _id, ...appointment } = this.toObject();
-    appointment.uid = _id;
-    return appointment;
-}
+AppointmentSchema.set('timestamps', true);
 
 module.exports = model('appointments', AppointmentSchema);

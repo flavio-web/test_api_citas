@@ -2,11 +2,17 @@ const { request, response } = require('express');
 const Doctor = require('../models/doctor');
 const User = require('../models/user');
 const Appointment = require('../models/appointment');
+const { convertImageToBase64 } = require('../helpers');
 
 const index = async( req = request, res = response ) => {
     try {
 
-        const doctors = await Doctor.find();
+        const doctors = await Doctor.find().populate('user').populate('speciality');
+
+        await doctors.map(async (doctor) => {
+            doctor.user.photo = convertImageToBase64(doctor.user.photo);
+            return doctor;
+        });
 
         res.json({
             status: true,
@@ -25,7 +31,9 @@ const show = async( req = request, res = response ) => {
     try {
 
         const { uid } = req.params;
-        const doctor = await Doctor.findById( uid );
+        const doctor = await Doctor.findById( uid ).populate({
+            path: 'user',
+        }).populate('speciality');
 
         if( !doctor ){
             return res.status(404).json({
@@ -34,12 +42,16 @@ const show = async( req = request, res = response ) => {
             });
         }
 
+        console.log( doctor );
+        doctor.user.photo = convertImageToBase64(doctor.user.photo);
+
         res.json({
             status: true,
             result: doctor,
         });
         
     } catch (error) {
+        console.log( error )
         return res.status(500).json({
             status: false,
             message: 'Error interno en el servidor, por favor vuelva a intentarlo.'

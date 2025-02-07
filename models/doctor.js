@@ -20,12 +20,25 @@ const DoctorSchema = Schema({
         type: Boolean,
         default: true
     },
+}, {
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    }
 });
-
-DoctorSchema.methods.toJSON = function(){
-    const { __v, _id, ...doctor } = this.toObject();
-    doctor.uid = _id;
-    return doctor;
-}
 
 module.exports = model('doctors', DoctorSchema);

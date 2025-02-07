@@ -45,7 +45,34 @@ const destroyFile = ( fileName = '', folder = '' ) => {
     });
 }
 
+const convertImageToBase64 = ( imageUid = '' ) => {
+    if( !imageUid ){
+        return imageDefaulBase64();
+    }
+
+    const photoPath = path.join(__dirname, '../uploads', 'users', imageUid);
+
+    if (fs.existsSync(photoPath)) {
+       const extend = path.extname(imageUid);
+       const imageBuffer = fs.readFileSync(photoPath);
+       const imageBase64 = imageBuffer.toString('base64');
+       return `data:image/${extend};base64,${imageBase64}`;
+    }
+
+    return imageDefaulBase64();
+}
+
+const imageDefaulBase64 = () => {
+    const pathImage = path.join(__dirname, '../uploads/no-image-user.png');
+    const image = fs.readFileSync(pathImage, {
+        encoding: 'base64'
+    });
+    return `data:image/jpeg;base64,${image}`;
+}
+
 module.exports = {
     uploadFile,
-    destroyFile
+    destroyFile,
+    convertImageToBase64,
+    imageDefaulBase64
 }

@@ -1,24 +1,57 @@
 const { request, response } = require('express');
 const bcrypt = require('bcrypt');
-const { uploadFile, destroyFile } = require('../helpers');
+const { uploadFile, destroyFile, convertImageToBase64 } = require('../helpers');
 const User = require('../models/user');
 const Doctor = require('../models/doctor');
 const Appointment = require('../models/appointment');
+const fs = require('fs');
+const path = require('path');
+const { loadFile } = require('./upload.controller');
 
 const index = async( req = request, res = response ) => {
     try{
 
-        const { limit = 10, skip = 0 } = req.query;
+        /* const { limit = 10, skip = 0 } = req.query;
     
         const [ result, total ] = await Promise.all([
             User.find().limit( Number(limit) ).skip( Number(skip) ),
             User.countDocuments()
-        ]);
-    
-        res.json({
+        ]); */
+
+        const result = await User.find();
+
+        await result.map( async ( user ) => {
+            /* if (user.photo) {
+                const photoPath = path.join(__dirname, '../uploads', 'users', user.photo);
+
+                // Verifica si el archivo existe
+                if (fs.existsSync(photoPath)) {
+                    const extend = path.extname(user.photo);
+                    const imageBuffer = fs.readFileSync(photoPath);
+                    const imageBase64 = imageBuffer.toString('base64');
+                    user.photo = `data:image/${extend};base64,${imageBase64}`; // Asumiendo que la imagen es PNG
+                }else{
+                    const pathImage = path.join( __dirname, '../uploads/no-image-user.png');
+                    const image = fs.readFileSync(pathImage, { encoding: 'base64' });
+                    user.photo = `data:image/jpeg;base64,${image}`;
+                }
+            }else{
+                const pathImage = path.join(__dirname, '../uploads/no-image-user.png');
+                const image = fs.readFileSync(pathImage, {
+                    encoding: 'base64'
+                });
+                user.photo = `data:image/jpeg;base64,${image}`;
+            } */
+
+            user.photo = convertImageToBase64( user.photo );
+
+            return user;
+        });
+
+        return res.json({
             status: true,
             result,
-            total
+            //total
         });
 
     }catch (error) {
@@ -60,6 +93,11 @@ const search = async ( req = request, res = response ) => {
             });
         }
 
+        await users.map(async (user) => {
+            user.photo = convertImageToBase64(user.photo);
+            return user;
+        });
+
         res.json({
             status: true,
             result: users
@@ -86,6 +124,8 @@ const show = async( req = request, res = response ) => {
                 message: `No se ha podido encontrar datos del usuario ${uid}`
             });
         }
+
+        result.photo = convertImageToBase64(result.photo);
     
         res.json({
             status: true,
@@ -270,11 +310,36 @@ const destroy = async( req = request, res = response ) => {
     }
 }
 
+const changePassword = async ( req = request, res = response ) => {
+    try{
+        const uid = req.params.uid;
+        let { password } = req.body;
+
+        const salt = bcrypt.genSaltSync();
+        password = bcrypt.hashSync( password, salt );
+      
+        const user = await User.findByIdAndUpdate( uid, { password } );
+    
+        res.json({
+            status: true,
+            result: user,
+            message: `Cambio de contraseña al usuario ${user.firstname} ${user.lastname} realizada correctamente.`,
+        });
+    }catch (error) {
+        console.log( error );
+        return res.status(404).json({
+            status: false,
+            message: 'Error interno en el servidor, por favor vuelva a intentarlo.'
+        })
+    }
+}
+
 module.exports = {
     index,
     show,
     store,
     update,
     destroy,
-    search
+    search,
+    changePassword
 }

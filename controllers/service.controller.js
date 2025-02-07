@@ -4,7 +4,7 @@ const Appointment = require('../models/appointment');
 
 const index = async( req = request, res = response ) => {
     try {
-        const services = await Service.find();
+        const services = await Service.find().populate('speciality');
 
         res.json({
             status: true,
@@ -22,7 +22,7 @@ const index = async( req = request, res = response ) => {
 const show = async( req = request, res = response ) => {
     try {
         const { uid } = req.params;
-        const service = await Service.findById( uid );
+        const service = await Service.findById( uid ).populate('speciality');
 
         if( !service ){
             return res.status(401).json({
@@ -46,8 +46,8 @@ const show = async( req = request, res = response ) => {
 
 const store = async( req = request, res = response ) => {
     try {
-        const { name, price, discount, description, state, speciality } = req.body;
-        const service = new Service({ name, price, discount, description, state, speciality });
+        const { name, price, discount, duration, description, state, speciality } = req.body;
+        const service = new Service({ name, price, discount, duration, description, state, speciality });
         service.save();
 
         res.json({
@@ -67,9 +67,9 @@ const store = async( req = request, res = response ) => {
 const update = async( req = request, res = response ) => {
     try {
         const { uid } = req.params;
-        const { name, price, discount, description, state, speciality } = req.body;
+        const { name, price, discount, duration, description, state, speciality } = req.body;
        
-        const service = await Service.findByIdAndUpdate( uid, { name, price, discount, description, state, speciality } );
+        const service = await Service.findByIdAndUpdate( uid, { name, price, discount, duration, description, state, speciality } );
 
         res.json({
             status: true,
@@ -114,11 +114,36 @@ const destroy = async( req = request, res = response ) => {
     }
 }
 
+const showServicesBySpeciality = async ( req = request, res = response ) => {
+    try {
+        const { uid } = req.params;
+        const services = await Service.find({'speciality': uid});
+
+        if( services.length === 0 ){
+            return res.json({
+                status: false,
+                message: 'No existen servicios disponibles para la espcilidad solicitada'
+            });
+        }
+        res.json({
+            status: true,
+            result: services
+        });
+    } catch (error) {
+        console.log( error );
+        return res.status(404).json({
+            status: false,
+            message: 'Error interno en el servidor, por favor vuelva a intentarlo.'
+        })
+    }
+}
+
 
 module.exports = {
     index,
     show,
     store,
     update,
-    destroy
+    destroy,
+    showServicesBySpeciality
 }

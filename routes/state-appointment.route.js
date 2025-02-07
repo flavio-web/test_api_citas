@@ -22,6 +22,8 @@ router.post('/', [
     validarJWT,
     check('name', 'El nombre es obligatorio y debe de tener 5 caracteres mínimo.').not().isEmpty().isLength({ min: 5, max: 50 }),
     check('description', 'La descripción debe tener 200 caracteres máximo.').optional().isLength({ max: 200 }),
+    check('primary', 'El color primario es obligatorio y debe tener 7 caracteres máximo.').not().isEmpty().isLength({ max: 7 }),
+    check('secondary', 'El color secundario es obligatorio y debe tener 7 caracteres máximo.').not().isEmpty().isLength({ max: 7 }),
     validarCampos
 ], store );
 

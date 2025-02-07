@@ -57,18 +57,31 @@ const UserSchema = Schema({
         default: false
     }
 }, {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret.password
+            delete ret._id
+        }
+     },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret.password
+            delete ret._id
+        }
+    }
 });
 
 UserSchema.virtual('fullName').get(function() {
     return `${this.firstname} ${this.lastname}`;
 });
 
-UserSchema.methods.toJSON = function(){
-    const { __v, password, _id, id, ...user } = this.toObject();
-    user.uid = _id;
-    return user;
-}
 
 module.exports = model('users', UserSchema);

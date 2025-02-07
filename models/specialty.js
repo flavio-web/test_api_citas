@@ -20,12 +20,25 @@ const SpecialtySchema = Schema({
             errorMessage: 'La descripción debe de tener 200 caracteres máximo',
         },
     },
+}, {
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    }
 });
-
-SpecialtySchema.methods.toJSON = function(){
-    const { __v, _id, ...specialty } = this.toObject();
-    specialty.uid = _id;
-    return specialty;
-}
 
 module.exports = model('specialities', SpecialtySchema);

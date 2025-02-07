@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-jwt');
 const { index, show, store, update, destroy } = require('../controllers/doctor.controller');
-const { existeDoctorByUid, existeUsuarioByUid, existeSpecialityByUid, codeDoctorExiste } = require('../helpers');
+const { existeDoctorByUid, existeUsuarioByUid, existeSpecialityByUid, codeDoctorExiste, existeUsuarioDoctorRegisterByUid } = require('../helpers');
 
 const router = Router();
 
@@ -23,6 +23,7 @@ router.post('/', [
     check('code', 'El código es obligatorio').not().isEmpty().custom( codeDoctorExiste ),
     check('state').isBoolean(),
     check('user').custom( existeUsuarioByUid ),
+    check('user').custom( existeUsuarioDoctorRegisterByUid ),
     check('speciality').custom( existeSpecialityByUid ),
     validarCampos
 ], store );

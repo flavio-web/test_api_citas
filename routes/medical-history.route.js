@@ -13,14 +13,8 @@ router.get('/:uid', [
     check('dateStart').optional().isDate({format: 'YYYY/MM/DD'}).withMessage("Fecha de comienzo incorrecta (YYYY/MM/DD)."),
     check('dateStart').optional().isDate({format: 'YYYY/MM/DD'}).withMessage("Fecha final incorrecta (YYYY/MM/DD)."),
     validarCampos
-], getMedicalHistoryByUser );
+], getMedicalHistoryByUser);
 
-router.get('/appointments/:uid', [
-    validarJWT,
-    check('uid').custom( existeUsuarioByUid ),
-    check('dateStart').optional().isDate({format: 'YYYY/MM/DD'}).withMessage("Fecha de comienzo incorrecta (YYYY/MM/DD)."),
-    check('dateStart').optional().isDate({format: 'YYYY/MM/DD'}).withMessage("Fecha final incorrecta (YYYY/MM/DD)."),
-    validarCampos
-], getMedicalHistoryByUser );
+
 
 module.exports = router;

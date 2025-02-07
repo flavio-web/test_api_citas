@@ -16,12 +16,42 @@ const StateAppointmentSchema = Schema({
             errorMessage: 'La descripción debe de tener 200 caracteres máximo',
         },
     },
+    primary: {
+        type: String,
+        default: '#8B5CF6',
+        isLength: {
+            options: { max: 7 },
+            errorMessage: 'El color primario debe de tener 7 caracteres máximo',
+        },
+    },
+    secondary: {
+        type: String,
+        default: '#31317C',
+        isLength: {
+            options: { max: 7 },
+            errorMessage: 'El color secundario debe de tener 7 caracteres máximo',
+        },
+    }
+}, {
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    }
 });
 
-StateAppointmentSchema.methods.toJSON = function(){
-    const { __v, _id, ...state } = this.toObject();
-    state.uid = _id;
-    return state;
-}
 
 module.exports = model('states', StateAppointmentSchema);

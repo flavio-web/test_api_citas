@@ -32,13 +32,17 @@ const loadFile = async( req = request, res = response ) => {
         const pathImage = path.join( __dirname, '../uploads', coleccion, modelo.photo );
 
         if( fs.existsSync( pathImage ) ){
-            return res.sendFile( pathImage );
+            const image = fs.readFileSync(pathImage, { encoding: 'base64' });
+            return res.send(`data:image/jpeg;base64,${image}`);
+            //return res.sendFile( pathImage );
         }
     }
 
     //retornar la imagen por defecto
     const pathImage = path.join( __dirname, '../uploads/no-image-user.png');
-    return res.sendFile( pathImage );
+    const image = fs.readFileSync(pathImage, { encoding: 'base64' });
+    //return res.sendFile( pathImage );
+    return res.send(`data:image/jpeg;base64,${image}`);
 }
 
 module.exports = {

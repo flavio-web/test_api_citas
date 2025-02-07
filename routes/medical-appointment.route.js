@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-jwt');
-const { index, show, store, update, updateState, sendNotificationAppointment } = require('../controllers/appointment.controller');
+const { index, show, store, update, updateState, sendNotificationAppointment, destroy } = require('../controllers/appointment.controller');
 const { existeSpecialityByUid, existeAppointmentByUid, existeStateAppointmentByUid, existeUsuarioByUid, existeDoctorByUid, existeServiceByUid } = require('../helpers');
 
 const router = Router();
@@ -18,6 +18,7 @@ router.get('/:uid', [
     validarCampos
 ], show );
 
+/**esto no hacer */
 router.get('/notification/:uid', [
     validarJWT,
     check('uid', 'No es un UID válido').isMongoId(),
@@ -28,7 +29,8 @@ router.post('/', [
     validarJWT,
     /* check('date').isDate({format: 'DD-MM-YYYY'})
             .withMessage("Invalid day received"), */
-    check('date').isISO8601().toDate().withMessage("Fecha incorrecta."),
+    check('datestart').isISO8601().toDate().withMessage("Fecha inicial incorrecta."),
+    check('dateend').isISO8601().toDate().withMessage("Fecha final incorrecta."),
     check('state').custom( existeStateAppointmentByUid ),
     check('patient').custom( existeUsuarioByUid ),
     check('doctor').custom( existeDoctorByUid ),
@@ -46,7 +48,8 @@ router.post('/', [
 router.put('/:uid', [
     validarJWT,
     check('uid').custom( existeAppointmentByUid ),
-    check('date').isISO8601().toDate().withMessage("Fecha incorrecta."),
+    check('datestart').isISO8601().toDate().withMessage("Fecha inicial incorrecta."),
+    check('dateend').isISO8601().toDate().withMessage("Fecha final incorrecta."),
     check('state').custom( existeStateAppointmentByUid ),
     check('patient').custom( existeUsuarioByUid ),
     check('doctor').custom( existeDoctorByUid ),
@@ -67,6 +70,12 @@ router.put('/state/:uid', [
     check('state').custom( existeStateAppointmentByUid ),
     validarCampos
 ], updateState );
+
+router.delete('/:uid', [
+    validarJWT,
+    check('uid').custom( existeAppointmentByUid ),
+    validarCampos
+], destroy );
 
 
 module.exports = router;

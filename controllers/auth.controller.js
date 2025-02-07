@@ -1,7 +1,7 @@
 const { request, response } = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { generarJWT } = require('../helpers');
+const { generarJWT, convertImageToBase64 } = require('../helpers');
 const User = require('../models/user');
 
 const login = async( req = request, res = response ) => {
@@ -18,6 +18,15 @@ const login = async( req = request, res = response ) => {
             });
         }
        
+        //validar si es un usuario administrador
+        if( !usuario.isAdmin ){
+            return res.status( 400 ).json({
+                status: false,
+                message: 'Usuario no es un administrador'
+            });
+        }
+
+        usuario.photo = convertImageToBase64(usuario.photo);
 
         //validar contraseña
         const validarPassword = bcrypt.compareSync( password, usuario.password );
@@ -50,7 +59,6 @@ const login = async( req = request, res = response ) => {
 
 const validarToken = async( req = request, res = respose ) => {
     const token = req.header('x-token');
-    console.log({ token });
     if( !token ){
         return res.status( 401 ).json({
             status: false,
@@ -71,6 +79,8 @@ const validarToken = async( req = request, res = respose ) => {
                 message: 'Token no válido - usuario no existe en BD'
             });
         }
+
+        usuario.photo = convertImageToBase64(usuario.photo);
 
         res.json({
             status: true,

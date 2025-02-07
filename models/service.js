@@ -24,6 +24,11 @@ const ServiceSchema = Schema({
         type: Boolean,
         default: true
     },
+    duration: {
+        type: Number,
+        default: 30,
+        min: 10
+    },
     description: {
         type: String,
         isLength: {
@@ -36,12 +41,27 @@ const ServiceSchema = Schema({
         ref: 'specialities',
         required: true
     },
-}, {timestamps:true});
+}, {
+    toJSON: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    },
+    toObject: { 
+        virtuals: true,
+        transform(doc, ret) {
+            delete ret.__v
+            ret.uid = ret._id
+            delete ret.id
+            delete ret._id
+        }
+    }
+});
 
-ServiceSchema.methods.toJSON = function(){
-    const { __v, _id, ...service } = this.toObject();
-    service.uid = _id;
-    return service;
-}
+ServiceSchema.set('timestamps', true);
 
 module.exports = model('services', ServiceSchema);

@@ -51,6 +51,18 @@ const existeDoctorByUid = async ( uid ) => {
     }
 }
 
+const existeUsuarioDoctorRegisterByUid = async ( uid ) => {
+    if( mongoose.Types.ObjectId.isValid( uid ) ){
+        const existeId = await User.findById( uid );
+        
+        if( existeId ){
+            throw new Error(`El Dr. ${existeId.fullName} ya se encuentra registrado.`);
+        }
+    }else{
+        throw new Error(`El UID ${uid} no es válido.`);
+    }
+}
+
 const codeDoctorExiste = async ( code ) => {
     const doctor = await Doctor.findOne({ code });
     if( doctor ){
@@ -111,5 +123,6 @@ module.exports = {
     codeDoctorExiste,
     existeStateAppointmentByUid,
     existeServiceByUid,
-    existeAppointmentByUid
+    existeAppointmentByUid,
+    existeUsuarioDoctorRegisterByUid
 }

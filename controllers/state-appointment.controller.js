@@ -43,9 +43,9 @@ const show = async ( req = request, res = response ) => {
 
 const store = async ( req = request, res = response ) => {
     try {
-        const { name, description } = req.body;
+        const { name, description, primary, secondary } = req.body;
     
-        const state = new State({ name, description });
+        const state = new State({ name, description, primary, secondary });
         state.save();
 
         res.json({
@@ -64,10 +64,10 @@ const store = async ( req = request, res = response ) => {
 
 const update = async ( req = request, res = response ) => {
     try {
-        const { name, description } = req.body;
+        const { name, description, primary, secondary } = req.body;
         const { uid } = req.params;
     
-        const state = await State.findByIdAndUpdate( uid, { name, description } );
+        const state = await State.findByIdAndUpdate( uid, { name, description, primary, secondary } );
 
         res.json({
             status: true,
